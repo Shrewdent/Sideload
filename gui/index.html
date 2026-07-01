@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sideload</title>
+<style>
+  :root {
+    --bg:#14101d; --bg-rail:#100c18; --surface:#1d1729; --surface-2:#251d36;
+    --border:#2e2742; --border-2:#3a3150; --text:#ece8f5; --text-dim:#9890ad;
+    --text-mute:#6b6483; --violet:#7c5cff; --violet-dim:#5b44bd; --violet-bg:#241a3f;
+    --green:#38c172; --amber:#e0a82e; --red:#e2574c; --radius:9px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden;}
+  .app{display:flex;height:100vh;}
+  .rail{width:180px;flex-shrink:0;background:var(--bg-rail);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 12px;}
+  .brand{display:flex;align-items:center;gap:9px;padding:6px 8px 20px;}
+  .brand .logo{width:24px;height:24px;border-radius:6px;background:var(--violet);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;}
+  .brand .name{font-size:16px;font-weight:600;letter-spacing:-0.01em;}
+  .nav{display:flex;flex-direction:column;gap:2px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--radius);color:var(--text-dim);cursor:pointer;font-size:13.5px;user-select:none;transition:background .12s,color .12s;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:var(--violet-bg);color:var(--text);}
+  .nav-item.active .ic{color:var(--violet);}
+  .nav-item .ic{width:17px;text-align:center;color:var(--text-mute);font-size:15px;}
+  .rail-foot{margin-top:auto;padding:8px;}
+  .pill{font-size:11px;color:var(--text-mute);display:flex;align-items:center;gap:6px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--red);}
+  .dot.live{background:var(--green);}
+  .main{flex:1;overflow-y:auto;padding:28px 32px;}
+  .screen{display:none;max-width:640px;}
+  .screen.active{display:block;}
+  h1{font-size:21px;font-weight:600;letter-spacing:-0.02em;margin-bottom:4px;}
+  .sub{color:var(--text-dim);font-size:13px;margin-bottom:24px;}
+  .field{margin-bottom:16px;}
+  label.lbl{display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:7px;}
+  input[type=text],select{width:100%;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--text);padding:11px 13px;font-size:14px;font-family:var(--font);outline:none;transition:border-color .12s;}
+  input[type=text]:focus,select:focus{border-color:var(--violet);}
+  input::placeholder{color:var(--text-mute);}
+  .row{display:flex;gap:10px;}
+  .row>*{flex:1;}
+  .seg{display:inline-flex;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius);padding:3px;gap:3px;}
+  .seg button{border:none;background:transparent;color:var(--text-dim);padding:7px 16px;border-radius:7px;cursor:pointer;font-size:13px;font-family:var(--font);transition:background .12s,color .12s;}
+  .seg button.on{background:var(--violet);color:#fff;}
+  .btn{border:none;border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;font-family:var(--font);padding:11px 22px;transition:background .12s,transform .05s;}
+  .btn:active{transform:scale(.985);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn-primary{background:var(--violet);color:#fff;}
+  .btn-primary:hover:not(:disabled){background:var(--violet-dim);}
+  .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border-2);}
+  .btn-ghost:hover{border-color:var(--violet);}
+  .actions{display:flex;gap:10px;margin-top:8px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:22px;}
+  .card-title{font-size:13px;color:var(--text-dim);margin-bottom:12px;}
+  .search-wrap{position:relative;margin-bottom:16px;}
+  .search-wrap input{padding-left:36px;}
+  .search-wrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-mute);font-size:15px;}
+  .song{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:var(--radius);transition:background .1s;}
+  .song:hover{background:var(--surface);}
+  .song .art{width:42px;height:42px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,var(--violet-dim),var(--violet));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;background-size:cover;background-position:center;}
+  .song .meta{flex:1;min-width:0;}
+  .song .t{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .song .a{font-size:12.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .song .date{font-size:11.5px;color:var(--text-mute);flex-shrink:0;}
+  .song .edit-btn{opacity:0;background:none;border:none;color:var(--text-mute);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:5px;transition:opacity .15s,color .15s,background .12s;flex-shrink:0;}
+  .song:hover .edit-btn{opacity:1;}
+  .song .edit-btn:hover{color:var(--amber);background:rgba(224,168,46,.1);}
+  .song .apple-btn{opacity:0;margin-left:10px;background:none;border:none;color:var(--text-mute);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:5px;transition:opacity .15s,color .15s,background .12s;flex-shrink:0;}
+  .song:hover .apple-btn{opacity:1;}
+  .song .apple-btn:hover{color:var(--green);background:rgba(56,193,114,.1);}
+  .song .reveal-btn{opacity:0;margin-left:4px;background:none;border:none;color:var(--text-mute);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:5px;transition:opacity .15s,color .15s,background .12s;flex-shrink:0;}
+  .song:hover .reveal-btn{opacity:1;}
+  .song .reveal-btn:hover{color:var(--violet);background:var(--violet-bg);}
+  .song .del-btn{opacity:0;margin-left:4px;background:none;border:none;color:var(--text-mute);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:5px;transition:opacity .15s,color .15s,background .12s;flex-shrink:0;}
+  .song:hover .del-btn{opacity:1;}
+  .song .del-btn:hover{color:var(--red);background:rgba(226,87,76,.1);}
+  .empty{color:var(--text-mute);font-size:13px;text-align:center;padding:40px 0;}
+  .status{margin-top:18px;padding:12px 14px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--text-dim);display:none;}
+  .status.show{display:block;}
+  .status.ok{border-color:var(--green);color:#aef0c6;}
+  .status.warn{border-color:var(--amber);color:#f3d99a;}
+  .status.err{border-color:var(--red);color:#f3b3ad;}
+  .review{background:var(--surface);border:1px solid var(--border-2);border-radius:12px;padding:18px;margin-top:18px;display:none;}
+  .review.show{display:block;}
+  .review-head{display:flex;align-items:center;gap:13px;margin-bottom:16px;}
+  #editBox.saved > *:not(.review-head):not(#editStatus){display:none;}
+  #editBox.saved .review-head{margin-bottom:6px;}
+  .review-head .art{width:54px;height:54px;border-radius:8px;flex-shrink:0;background:var(--surface-2);background-size:cover;background-position:center;}
+  .review-head .h{font-size:13px;color:var(--text-dim);}
+  .dupewarn{background:#3a2a12;border:1px solid var(--amber);color:#f3d99a;font-size:12.5px;padding:9px 12px;border-radius:var(--radius);margin-bottom:14px;display:none;}
+  .dupewarn.show{display:block;}
+  .set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+  .set-row:last-child{border-bottom:none;}
+  .set-row .k{font-size:14px;}
+  .set-row .d{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .set-row .v{font-size:13px;color:var(--text-dim);font-family:ui-monospace,monospace;}
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:6px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><div class="logo">&#8595;</div><div class="name">Sideload</div></div>
+    <nav class="nav">
+      <div class="nav-item active" data-screen="convert"><span class="ic">&#10515;</span> Convert</div>
+      <div class="nav-item" data-screen="library"><span class="ic">&#8803;</span> Library</div>
+      <div class="nav-item" data-screen="import"><span class="ic">&#43;</span> Import</div>
+      <div class="nav-item" data-screen="settings"><span class="ic">&#9881;</span> Settings</div>
+    </nav>
+    <div class="rail-foot"><div class="pill"><span class="dot" id="engineDot"></span> <span id="engineLabel">Engine offline</span></div></div>
+  </aside>
+
+  <main class="main">
+    <!-- CONVERT -->
+    <section class="screen active" id="screen-convert">
+      <h1>Convert</h1>
+      <p class="sub">Paste a YouTube link to pull the audio as a tagged MP3.</p>
+      <div id="convertForm">
+        <div class="field">
+          <div class="seg" id="modeSeg">
+            <button class="on" data-mode="single">Song</button>
+            <button data-mode="playlist">Playlist</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">URL</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="urlInput" placeholder="YouTube or SoundCloud link&hellip;" style="flex:1;" />
+            <button class="btn btn-ghost" id="pasteBtn" style="padding:8px 12px;font-size:16px;" title="Paste from clipboard">&#128203;</button>
+          </div>
+        </div>
+        <div id="playlistOpts" style="display:none;">
+          <div class="field">
+            <label class="lbl">Max songs (blank = all)</label>
+            <input type="text" id="maxInput" placeholder="e.g. 25" />
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="convertBtn">Convert</button>
+          <button class="btn btn-ghost" id="clearBtn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Review screen (single song) -->
+      <div class="review" id="reviewBox">
+        <div class="dupewarn" id="dupeWarn"></div>
+        <div class="review-head">
+          <div class="art" id="reviewArt"></div>
+          <div class="h">Review the tags, then save.</div>
+        </div>
+        <div class="row">
+          <div class="field"><label class="lbl">Artist</label><input type="text" id="rArtist" /></div>
+          <div class="field"><label class="lbl">Title</label><input type="text" id="rTitle" /></div>
+        </div>
+        <div class="field"><label class="lbl">Album (optional)</label><input type="text" id="rAlbum" /></div>
+        <div class="field"><label class="lbl">Genre (optional)</label><input type="text" id="rGenre" /></div>
+        <div class="row">
+          <div class="field"><label class="lbl">Year (optional)</label><input type="text" id="rYear" /></div>
+          <div class="field"><label class="lbl">Track # (optional)</label><input type="text" id="rTrack" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="saveBtn">Download &amp; save</button>
+          <button class="btn btn-ghost" id="cancelReview">Cancel</button>
+        </div>
+      </div>
+
+      <div class="status" id="convertStatus"></div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section class="screen" id="screen-library">
+      <h1>Library</h1>
+      <p class="sub">Everything you've converted.</p>
+      <div class="search-wrap"><span class="si">&#8981;</span><input type="text" id="searchInput" placeholder="Search title or artist&hellip;" /></div>
+      <div id="songList"><div class="empty">No songs yet. Convert something to get started.</div></div>
+      <div class="status" id="libStatus"></div>
+    </section>
+
+    <!-- IMPORT / EDIT -->
+    <section class="screen" id="screen-import">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <h1 style="margin-bottom:0;">Import &amp; edit</h1>
+        <button class="btn btn-primary" id="pickBtn">Choose an MP3&hellip;</button>
+      </div>
+      <p class="sub">Pull in an MP3 you converted before, fix its tags, swap the art.</p>
+
+      <div class="review" id="editBox">
+        <div class="review-head">
+          <div class="art" id="editArt"></div>
+          <div class="h" id="editFileName">&nbsp;</div>
+        </div>
+        <div class="row">
+          <div class="field"><label class="lbl">Artist</label><input type="text" id="eArtist" /></div>
+          <div class="field"><label class="lbl">Title</label><input type="text" id="eTitle" /></div>
+        </div>
+        <div class="field"><label class="lbl">Album</label><input type="text" id="eAlbum" /></div>
+        <div class="field"><label class="lbl">Genre</label><input type="text" id="eGenre" /></div>
+        <div class="row">
+          <div class="field"><label class="lbl">Year</label><input type="text" id="eYear" /></div>
+          <div class="field"><label class="lbl">Track #</label><input type="text" id="eTrack" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-ghost" id="artBtn">Replace cover art&hellip;</button>
+        </div>
+        <div class="actions" style="margin-top:14px;">
+          <button class="btn btn-primary" id="saveEditBtn">Save to file &amp; library</button>
+          <button class="btn btn-ghost" id="cancelEditBtn">Cancel</button>
+        </div>
+        <div class="status" id="editStatus"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="screen" id="screen-settings">
+      <h1>Settings</h1>
+      <p class="sub">Where things live and how conversion behaves.</p>
+      <div class="card">
+        <div class="card-title">Paths</div>
+        <div class="set-row"><div><div class="k">Output folder</div><div class="d">Where finished MP3s are saved</div></div><div style="display:flex;align-items:center;gap:10px;"><div class="v" id="settingOutputDir">&hellip;</div><button class="btn btn-ghost" id="browseOutputBtn" style="padding:6px 12px;font-size:12px;">Change&hellip;</button></div></div>
+        <div class="set-row"><div><div class="k">Library file</div><div class="d">Record of converted songs</div></div><div class="v">library.json</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Conversion</div>
+        <div class="set-row"><div><div class="k">Audio quality</div><div class="d">MP3 bitrate</div></div><div class="v">192 kbps</div></div>
+        <div class="set-row"><div><div class="k">Duplicate detection</div><div class="d">Skip songs already in library</div></div><div class="v">On</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const hasApi = () => !!(window.pywebview && window.pywebview.api);
+
+  // ---- Screen switching ----
+  const navItems = document.querySelectorAll('.nav-item');
+  const screens = document.querySelectorAll('.screen');
+  navItems.forEach(item => item.addEventListener('click', () => {
+    const target = item.dataset.screen;
+    navItems.forEach(n => n.classList.toggle('active', n === item));
+    screens.forEach(s => s.classList.toggle('active', s.id === 'screen-' + target));
+    if (target === 'library') refreshLibrary();
+    if (target === 'settings') refreshSettings();
+  }));
+
+  // ---- Mode toggle ----
+  const seg = $('modeSeg'), playlistOpts = $('playlistOpts');
+  let mode = 'single';
+  seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode;
+    seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    playlistOpts.style.display = mode === 'playlist' ? 'block' : 'none';
+    hideReview();
+  }));
+
+  function setStatus(msg, kind){ const el=$('convertStatus'); el.textContent=msg; el.className='status show'+(kind?' '+kind:''); }
+  function clearStatus(){ $('convertStatus').className='status'; }
+  function showReview(){ $('reviewBox').classList.add('show'); }
+  function hideReview(){ $('reviewBox').classList.remove('show'); $('dupeWarn').classList.remove('show'); }
+  function showForm(){ $('convertForm').style.display = ''; }
+  function hideForm(){ $('convertForm').style.display = 'none'; }
+
+  $('clearBtn').addEventListener('click', () => {
+    $('urlInput').value=''; $('maxInput').value=''; clearStatus(); hideReview(); showForm();
+  });
+
+  $('pasteBtn').addEventListener('click', async () => {
+    if(!hasApi()) return;
+    const text = await window.pywebview.api.get_clipboard();
+    if(text){ $('urlInput').value = text; $('urlInput').focus(); }
+  });
+  $('cancelReview').addEventListener('click', () => { hideReview(); showForm(); });
+
+  // ---- Convert button ----
+  $('convertBtn').addEventListener('click', async () => {
+    const url = $('urlInput').value.trim();
+    if(!url){ setStatus('Paste a URL first.','warn'); return; }
+    if(!hasApi()){ setStatus('Browser preview — launch via app.py to convert.','warn'); return; }
+    hideReview();
+    hideForm();
+
+    if(mode === 'playlist'){
+      setStatus('Reading playlist…');
+      window.pywebview.api.convert_playlist(url, $('maxInput').value.trim());
+      return;
+    }
+
+    // Single: probe first to fetch guesses + URL dupe check
+    setStatus('Fetching info…');
+    const r = await window.pywebview.api.probe(url);
+    if(!r.ok){ setStatus('Could not read that URL: '+r.error,'err'); showForm(); return; }
+    clearStatus();
+    $('rArtist').value = r.artist;
+    $('rTitle').value = r.title;
+    $('rAlbum').value = '';
+    $('rGenre').value = '';
+    $('rYear').value = r.year || '';
+    $('rTrack').value = '';
+    $('reviewArt').style.backgroundImage = r.thumbnail ? `url('${r.thumbnail}')` : 'none';
+    const dw = $('dupeWarn');
+    if(r.url_duplicate){
+      dw.textContent = `Already in library: ${r.url_duplicate.artist} \u2014 ${r.url_duplicate.title}. Convert anyway?`;
+      dw.classList.add('show');
+    } else { dw.classList.remove('show'); }
+    showReview();
+  });
+
+  // ---- Save (after review) ----
+  $('saveBtn').addEventListener('click', () => {
+    const url = $('urlInput').value.trim();
+    $('saveBtn').disabled = true;
+    setStatus('Starting…');
+    window.pywebview.api.convert_single(url, $('rTitle').value.trim(), $('rArtist').value.trim(), $('rAlbum').value.trim(), $('rGenre').value.trim(), $('rYear').value.trim(), $('rTrack').value.trim());
+  });
+
+  // ---- Callbacks invoked from Python ----
+  window.onProgress = msg => setStatus(msg);
+  window.onDone = msg => { setStatus(msg + ' \u2713','ok'); $('saveBtn').disabled=false; hideReview(); showForm(); $('urlInput').value=''; refreshLibrary(); };
+  window.onError = msg => { setStatus('Error: '+msg,'err'); $('saveBtn').disabled=false; showForm(); };
+  window.onCancelled = msg => { setStatus(msg,'warn'); $('saveBtn').disabled=false; hideReview(); showForm(); };
+  window.onFuzzyDuplicate = d => {
+    $('saveBtn').disabled=false;
+    const keep = confirm(`Possible duplicate (${d.score}% match):\n${d.artist} \u2014 ${d.title}\n\nKeep this one anyway?`);
+    if(!keep){ showForm(); }
+    window.pywebview.api.resolve_fuzzy(keep);
+    setStatus(keep ? 'Saving…' : 'Discarding…');
+  };
+
+  // ---- Library ----
+  function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return isNaN(d)?'':d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  async function refreshLibrary(){
+    const list = $('songList');
+    const sub = document.querySelector('#screen-library .sub');
+    if(!hasApi()){
+      list.innerHTML = '<div class="empty">Browser preview &mdash; launch via app.py to see your library.</div>';
+      sub.textContent = "Everything you've converted.";
+      return;
+    }
+    const lib = await window.pywebview.api.get_library();
+    if(!lib || !lib.length){
+      list.innerHTML = '<div class="empty">No songs yet. Convert something to get started.</div>';
+      sub.textContent = "Everything you've converted.";
+      return;
+    }
+    sub.textContent = `Everything you've converted. · ${lib.length} song${lib.length !== 1 ? 's' : ''}`;
+    list.innerHTML = lib.map(s => `
+      <div class="song">
+        <div class="art">&#9834;</div>
+        <div class="meta"><div class="t">${esc(s.title||'Unknown')}</div><div class="a">${esc(s.artist||'')}</div></div>
+        <div class="date">${fmtDate(s.added)}</div>
+        <button class="edit-btn" title="Edit in Import &amp; Edit" data-file="${esc(s.file||'')}" data-path="${esc(s.path||s.file||'')}">&#9999;</button>
+        <button class="apple-btn" title="Open in Apple Music" data-file="${esc(s.file||'')}" data-path="${esc(s.path||'')}">&#9834;</button>
+        <button class="reveal-btn" title="Show in Explorer" data-file="${esc(s.file||'')}" data-path="${esc(s.path||'')}">&#8599;</button>
+        <button class="del-btn" title="Remove from library" data-file="${esc(s.file||'')}">&#215;</button>
+      </div>`).join('');
+    // Apply stored thumbnails via JS (avoids URL-encoding issues in HTML attributes)
+    lib.forEach((s, i) => {
+      if(s.thumb){
+        const art = list.children[i].querySelector('.art');
+        art.style.backgroundImage = `url('${s.thumb}')`;
+        art.textContent = '';
+      }
+    });
+    list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      if(!hasApi()) return;
+      const filePath = btn.dataset.path || btn.dataset.file;
+      const tags = await window.pywebview.api.load_for_edit(filePath);
+      if(!tags){ setLibStatus('File not found.', 'err'); return; }
+      editFile = tags.file;
+      newArtPath = null;
+      $('eArtist').value = tags.artist || '';
+      $('eTitle').value  = tags.title  || '';
+      $('eAlbum').value  = tags.album  || '';
+      $('eGenre').value  = tags.genre  || '';
+      $('eYear').value   = tags.year   || '';
+      $('eTrack').value  = tags.tracknumber || '';
+      $('editArt').style.backgroundImage = tags.art_data_url ? `url('${tags.art_data_url}')` : 'none';
+      $('editFileName').textContent = tags.file.split(/[\\/]/).pop();
+      $('editBox').classList.remove('saved');
+      $('editBox').classList.add('show');
+      $('pickBtn').style.display = 'none';
+      setEditStatus('', '');
+      document.querySelector('[data-screen="import"]').click();
+    }));
+    list.querySelectorAll('.apple-btn').forEach(btn => btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const r = await window.pywebview.api.send_to_apple_music(btn.dataset.file, btn.dataset.path);
+      if(!r.ok) setLibStatus('Could not open: ' + r.error, 'err');
+    }));
+    list.querySelectorAll('.reveal-btn').forEach(btn => btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const r = await window.pywebview.api.reveal_in_explorer(btn.dataset.file, btn.dataset.path);
+      if(!r.ok) setLibStatus('Could not find file: ' + r.error, 'err');
+    }));
+    list.querySelectorAll('.del-btn').forEach(btn => btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      await window.pywebview.api.delete_from_library(btn.dataset.file);
+      refreshLibrary();
+    }));
+  }
+
+  function setLibStatus(msg, kind){
+    const el=$('libStatus'); el.textContent=msg; el.className='status show'+(kind?' '+kind:'');
+    if(msg) setTimeout(()=>{ el.className='status'; }, 4000);
+  }
+
+  async function refreshSettings(){
+    if(!hasApi()) return;
+    const p = await window.pywebview.api.get_output_dir();
+    $('settingOutputDir').textContent = p;
+  }
+
+  $('browseOutputBtn').addEventListener('click', async () => {
+    if(!hasApi()) return;
+    const p = await window.pywebview.api.pick_output_dir();
+    if(p) $('settingOutputDir').textContent = p;
+  });
+
+  $('searchInput').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('#songList .song').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+  });
+
+  // ---- Engine status ----
+  function markEngine(){
+    const c = hasApi();
+    $('engineDot').classList.toggle('live', c);
+    $('engineLabel').textContent = c ? 'Engine ready' : 'Browser preview';
+    if(c){ refreshLibrary(); refreshSettings(); }
+  }
+  window.addEventListener('pywebviewready', markEngine);
+  setTimeout(markEngine, 350);
+
+// ---- Import & edit screen ----
+  let editFile = null;       // path of the MP3 being edited
+  let newArtPath = null;     // chosen replacement image, if any
+
+  function setEditStatus(msg, kind){ const el=$('editStatus'); el.textContent=msg; el.className='status show'+(kind?' '+kind:''); }
+
+  $('pickBtn').addEventListener('click', async () => {
+    if(!hasApi()){ alert('Launch via app.py to pick files.'); return; }
+    const tags = await window.pywebview.api.pick_mp3();
+    if(!tags) return;                 // user cancelled
+    editFile = tags.file;
+    newArtPath = null;
+    $('eArtist').value = tags.artist || '';
+    $('eTitle').value  = tags.title  || '';
+    $('eAlbum').value  = tags.album  || '';
+    $('eGenre').value  = tags.genre  || '';
+    $('eYear').value   = tags.year   || '';
+    $('eTrack').value  = tags.tracknumber || '';
+    $('editArt').style.backgroundImage = tags.art_data_url ? `url('${tags.art_data_url}')` : 'none';
+    $('editFileName').textContent = tags.file.split(/[\\/]/).pop();
+    $('editBox').classList.remove('saved');
+    $('editBox').classList.add('show');
+    $('pickBtn').style.display = 'none';
+    setEditStatus('', '');
+    // Also add it to the library if it's new
+    const imp = await window.pywebview.api.import_song(editFile);
+    if(imp.ok){ setEditStatus('Added to library. Edit and save if you like.','ok'); }
+    else if(imp.reason === 'already in library'){ setEditStatus('Already in your library \u2014 editing it.', ''); }
+  });
+
+  $('artBtn').addEventListener('click', async () => {
+    if(!hasApi()) return;
+    const p = await window.pywebview.api.pick_image();
+    if(!p) return;
+    newArtPath = p;
+    const preview = await window.pywebview.api.preview_image(p);
+    if(preview){
+      $('editArt').style.backgroundImage = `url('${preview}')`;
+      setEditStatus('New art selected \u2014 click Save to apply.', '');
+    } else {
+      setEditStatus('New art selected (preview unavailable) \u2014 click Save to apply.', 'warn');
+    }
+  });
+
+  $('cancelEditBtn').addEventListener('click', () => {
+    $('editBox').classList.remove('show', 'saved');
+    $('pickBtn').style.display = '';
+    editFile=null; newArtPath=null;
+  });
+
+  $('saveEditBtn').addEventListener('click', async () => {
+    if(!editFile) return;
+    $('saveEditBtn').disabled = true;
+    setEditStatus('Saving\u2026', '');
+    const r = await window.pywebview.api.save_edits(
+      editFile, $('eTitle').value.trim(), $('eArtist').value.trim(),
+      $('eAlbum').value.trim(), newArtPath,
+      $('eGenre').value.trim(), $('eYear').value.trim(), $('eTrack').value.trim()
+    );
+    $('saveEditBtn').disabled = false;
+    if(r.ok){
+      newArtPath = null;
+      refreshLibrary();
+      if(r.art_data_url !== undefined){
+        $('editArt').style.backgroundImage = r.art_data_url ? `url('${r.art_data_url}')` : 'none';
+      }
+      setEditStatus('Saved \u2713','ok');
+      $('editBox').classList.add('saved');
+      $('pickBtn').style.display = '';
+    }
+    else { setEditStatus('Error: '+(r.error||'unknown'),'err'); }
+  });
+
+
+</script>
+</body>
+</html>
