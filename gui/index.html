@@ -5,19 +5,88 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sideload</title>
 <style>
+  /* ============ Base theme: Violet (default) ============ */
   :root {
     --bg:#14101d; --bg-rail:#100c18; --surface:#1d1729; --surface-2:#251d36;
     --border:#2e2742; --border-2:#3a3150; --text:#ece8f5; --text-dim:#9890ad;
     --text-mute:#6b6483; --violet:#7c5cff; --violet-dim:#5b44bd; --violet-bg:#241a3f;
     --green:#38c172; --amber:#e0a82e; --red:#e2574c; --radius:9px;
+    --accent-ink:#ffffff; /* text color on top of the accent */
     --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
+
+  /* ============ Theme: Nebula ============ */
+  body[data-theme="nebula"]{
+    --bg:#07060f; --bg-rail:#05040c; --surface:#110e21; --surface-2:#181330;
+    --border:#241d3f; --border-2:#312955; --text:#ede9fa; --text-dim:#9a91bb;
+    --text-mute:#655c87; --violet:#c45cff; --violet-dim:#8e3ec9; --violet-bg:#2a1140;
+  }
+  body[data-theme="nebula"] .main{
+    background:
+      radial-gradient(1px 1px at 22px 34px, rgba(255,255,255,.55), transparent 1.6px),
+      radial-gradient(1px 1px at 118px 96px, rgba(255,255,255,.35), transparent 1.4px),
+      radial-gradient(1.4px 1.4px at 187px 22px, rgba(214,183,255,.5), transparent 2px),
+      radial-gradient(1px 1px at 64px 158px, rgba(255,255,255,.28), transparent 1.4px),
+      radial-gradient(1px 1px at 152px 190px, rgba(190,160,255,.4), transparent 1.6px),
+      radial-gradient(900px 380px at 78% -60px, rgba(196,92,255,.09), transparent 70%),
+      radial-gradient(700px 420px at 8% 108%, rgba(80,120,255,.07), transparent 70%),
+      var(--bg);
+    background-size:230px 230px,230px 230px,230px 230px,230px 230px,230px 230px,auto,auto,auto;
+  }
+  body[data-theme="nebula"] .rail{
+    background:
+      radial-gradient(1px 1px at 34px 60px, rgba(255,255,255,.3), transparent 1.4px),
+      radial-gradient(1px 1px at 120px 150px, rgba(255,255,255,.22), transparent 1.4px),
+      var(--bg-rail);
+    background-size:180px 210px,180px 210px,auto;
+  }
+
+  /* ============ Theme: Aurora ============ */
+  body[data-theme="aurora"]{
+    --bg:#071013; --bg-rail:#050b0e; --surface:#0e1b20; --surface-2:#132329;
+    --border:#1c3138; --border-2:#264049; --text:#e8f4f2; --text-dim:#8fadaa;
+    --text-mute:#5c7a77; --violet:#3ce6b0; --violet-dim:#22a37b; --violet-bg:#0e2f26;
+    --accent-ink:#04120d;
+  }
+  body[data-theme="aurora"] .main{
+    background:
+      radial-gradient(1000px 300px at 18% -130px, rgba(60,230,176,.11), transparent 70%),
+      radial-gradient(900px 280px at 62% -110px, rgba(80,160,255,.09), transparent 70%),
+      radial-gradient(700px 260px at 96% -90px, rgba(170,90,255,.08), transparent 70%),
+      radial-gradient(1px 1px at 40px 50px, rgba(255,255,255,.25), transparent 1.4px),
+      radial-gradient(1px 1px at 170px 130px, rgba(255,255,255,.18), transparent 1.4px),
+      var(--bg);
+    background-size:auto,auto,auto,260px 260px,260px 260px,auto;
+  }
+  body[data-theme="aurora"] .btn-primary{font-weight:600;}
+
+  /* ============ Theme: Moss ============ */
+  body[data-theme="moss"]{
+    --bg:#0e1512; --bg-rail:#0a100c; --surface:#16221b; --surface-2:#1d2c23;
+    --border:#25382c; --border-2:#30483a; --text:#e7f1ea; --text-dim:#94aa9b;
+    --text-mute:#63796b; --violet:#34d97b; --violet-dim:#219a55; --violet-bg:#143323;
+    --green:#5ce0a1; --amber:#e0b23a;
+    --accent-ink:#06130b;
+  }
+  body[data-theme="moss"] .btn-primary{font-weight:600;}
+
+  /* ============ Theme: Tide ============ */
+  body[data-theme="tide"]{
+    --bg:#0c141f; --bg-rail:#091019; --surface:#132133; --surface-2:#182a41;
+    --border:#213650; --border-2:#2b4665; --text:#e8eef7; --text-dim:#8fa3bd;
+    --text-mute:#5d7189; --violet:#3d9dff; --violet-dim:#2b73c2; --violet-bg:#11293f;
+  }
+  body[data-theme="tide"] .main{
+    background:radial-gradient(900px 320px at 50% -80px, rgba(61,157,255,.07), transparent 70%), var(--bg);
+  }
+
+  /* ============ Layout & components ============ */
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden;}
   .app{display:flex;height:100vh;}
   .rail{width:180px;flex-shrink:0;background:var(--bg-rail);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 12px;}
   .brand{display:flex;align-items:center;gap:9px;padding:6px 8px 20px;}
-  .brand .logo{width:24px;height:24px;border-radius:6px;background:var(--violet);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;}
+  .brand .logo{width:24px;height:24px;border-radius:6px;background:var(--violet);display:flex;align-items:center;justify-content:center;color:var(--accent-ink);font-size:14px;}
   .brand .name{font-size:16px;font-weight:600;letter-spacing:-0.01em;}
   .nav{display:flex;flex-direction:column;gap:2px;}
   .nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--radius);color:var(--text-dim);cursor:pointer;font-size:13.5px;user-select:none;transition:background .12s,color .12s;}
@@ -43,11 +112,11 @@
   .row>*{flex:1;}
   .seg{display:inline-flex;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius);padding:3px;gap:3px;}
   .seg button{border:none;background:transparent;color:var(--text-dim);padding:7px 16px;border-radius:7px;cursor:pointer;font-size:13px;font-family:var(--font);transition:background .12s,color .12s;}
-  .seg button.on{background:var(--violet);color:#fff;}
+  .seg button.on{background:var(--violet);color:var(--accent-ink);}
   .btn{border:none;border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;font-family:var(--font);padding:11px 22px;transition:background .12s,transform .05s;}
   .btn:active{transform:scale(.985);}
   .btn:disabled{opacity:.5;cursor:default;}
-  .btn-primary{background:var(--violet);color:#fff;}
+  .btn-primary{background:var(--violet);color:var(--accent-ink);}
   .btn-primary:hover:not(:disabled){background:var(--violet-dim);}
   .btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border-2);}
   .btn-ghost:hover{border-color:var(--violet);}
@@ -59,7 +128,7 @@
   .search-wrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-mute);font-size:15px;}
   .song{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:var(--radius);transition:background .1s;}
   .song:hover{background:var(--surface);}
-  .song .art{width:42px;height:42px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,var(--violet-dim),var(--violet));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;background-size:cover;background-position:center;}
+  .song .art{width:42px;height:42px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,var(--violet-dim),var(--violet));display:flex;align-items:center;justify-content:center;color:var(--accent-ink);font-size:16px;background-size:cover;background-position:center;}
   .song .meta{flex:1;min-width:0;}
   .song .t{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .song .a{font-size:12.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -89,13 +158,33 @@
   #editBox.saved .review-head{margin-bottom:6px;}
   .review-head .art{width:54px;height:54px;border-radius:8px;flex-shrink:0;background:var(--surface-2);background-size:cover;background-position:center;}
   .review-head .h{font-size:13px;color:var(--text-dim);}
-  .dupewarn{background:#3a2a12;border:1px solid var(--amber);color:#f3d99a;font-size:12.5px;padding:9px 12px;border-radius:var(--radius);margin-bottom:14px;display:none;}
+  .dupewarn{background:#33260f;border:1px solid var(--amber);color:#f3d99a;font-size:12.5px;padding:9px 12px;border-radius:var(--radius);margin-bottom:14px;display:none;}
   .dupewarn.show{display:block;}
   .set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
   .set-row:last-child{border-bottom:none;}
   .set-row .k{font-size:14px;}
   .set-row .d{font-size:12px;color:var(--text-dim);margin-top:2px;}
   .set-row .v{font-size:13px;color:var(--text-dim);font-family:ui-monospace,monospace;}
+
+  /* ---- Queue ---- */
+  .qitem{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid var(--border);}
+  .qitem:last-child{border-bottom:none;}
+  .qitem .qmeta{flex:1;min-width:0;}
+  .qitem .qt{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .qbar{height:4px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-top:6px;}
+  .qbar i{display:block;height:100%;background:var(--violet);width:0%;transition:width .25s;}
+  .qitem .qs{font-size:11.5px;color:var(--text-mute);flex-shrink:0;max-width:180px;text-align:right;}
+  .qitem.done .qs{color:var(--green);}
+  .qitem.done .qbar i{background:var(--green);}
+  .qitem.error .qs{color:var(--red);}
+  .qitem.error .qbar i{background:var(--red);}
+  .qitem.skipped .qs{color:var(--amber);}
+  .qitem.waiting .qs{color:var(--amber);}
+
+  /* ---- Drag & drop ---- */
+  .drophint{border:2px dashed var(--border-2);border-radius:12px;padding:24px;text-align:center;color:var(--text-mute);font-size:13px;margin-bottom:18px;transition:border-color .15s,color .15s,background .15s;}
+  .drophint.on{border-color:var(--violet);color:var(--text);background:var(--violet-bg);}
+
   ::-webkit-scrollbar{width:9px;}
   ::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:6px;}
 </style>
@@ -117,7 +206,7 @@
     <!-- CONVERT -->
     <section class="screen active" id="screen-convert">
       <h1>Convert</h1>
-      <p class="sub">Paste a YouTube link to pull the audio as a tagged MP3.</p>
+      <p class="sub">Paste a YouTube link to pull the audio as a tagged MP3. Tip: press Ctrl+V anywhere on this screen.</p>
       <div id="convertForm">
         <div class="field">
           <div class="seg" id="modeSeg">
@@ -149,7 +238,7 @@
         <div class="dupewarn" id="dupeWarn"></div>
         <div class="review-head">
           <div class="art" id="reviewArt"></div>
-          <div class="h">Review the tags, then save.</div>
+          <div class="h">Review the tags, then add it to the queue.</div>
         </div>
         <div class="row">
           <div class="field"><label class="lbl">Artist</label><input type="text" id="rArtist" /></div>
@@ -162,19 +251,36 @@
           <div class="field"><label class="lbl">Track # (optional)</label><input type="text" id="rTrack" /></div>
         </div>
         <div class="actions">
-          <button class="btn btn-primary" id="saveBtn">Download &amp; save</button>
+          <button class="btn btn-primary" id="saveBtn">Add to queue</button>
           <button class="btn btn-ghost" id="cancelReview">Cancel</button>
         </div>
       </div>
 
       <div class="status" id="convertStatus"></div>
+
+      <!-- Download queue -->
+      <div class="card" id="queueCard" style="display:none;margin-top:22px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="card-title" style="margin-bottom:0;">Queue</div>
+          <button class="btn btn-ghost" id="clearQueueBtn" style="padding:5px 10px;font-size:12px;">Clear finished</button>
+        </div>
+        <div id="queueList"></div>
+      </div>
     </section>
 
     <!-- LIBRARY -->
     <section class="screen" id="screen-library">
       <h1>Library</h1>
       <p class="sub">Everything you've converted.</p>
-      <div class="search-wrap"><span class="si">&#8981;</span><input type="text" id="searchInput" placeholder="Search title or artist&hellip;" /></div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <div class="search-wrap" style="flex:1;margin-bottom:0;"><span class="si">&#8981;</span><input type="text" id="searchInput" placeholder="Search title or artist&hellip;" /></div>
+        <select id="sortSelect" style="width:150px;flex:none;">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="title">Title A&ndash;Z</option>
+          <option value="artist">Artist A&ndash;Z</option>
+        </select>
+      </div>
       <div id="songList"><div class="empty">No songs yet. Convert something to get started.</div></div>
       <div class="status" id="libStatus"></div>
     </section>
@@ -186,6 +292,8 @@
         <button class="btn btn-primary" id="pickBtn">Choose an MP3&hellip;</button>
       </div>
       <p class="sub">Pull in an MP3 you converted before, fix its tags, swap the art.</p>
+
+      <div class="drophint" id="dropHint">Drop an MP3 anywhere on this screen to import it</div>
 
       <div class="review" id="editBox">
         <div class="review-head">
@@ -216,7 +324,20 @@
     <!-- SETTINGS -->
     <section class="screen" id="screen-settings">
       <h1>Settings</h1>
-      <p class="sub">Where things live and how conversion behaves.</p>
+      <p class="sub">Where things live and how the app looks and behaves.</p>
+      <div class="card">
+        <div class="card-title">Appearance</div>
+        <div class="set-row">
+          <div><div class="k">Theme</div><div class="d">Color palette for the app</div></div>
+          <select id="themeSelect" style="width:170px;">
+            <option value="nebula">Nebula</option>
+            <option value="violet">Violet</option>
+            <option value="aurora">Aurora</option>
+            <option value="moss">Moss</option>
+            <option value="tide">Tide</option>
+          </select>
+        </div>
+      </div>
       <div class="card">
         <div class="card-title">Paths</div>
         <div class="set-row"><div><div class="k">Output folder</div><div class="d">Where finished MP3s are saved</div></div><div style="display:flex;align-items:center;gap:10px;"><div class="v" id="settingOutputDir">&hellip;</div><button class="btn btn-ghost" id="browseOutputBtn" style="padding:6px 12px;font-size:12px;">Change&hellip;</button></div></div>
@@ -234,6 +355,21 @@
 <script>
   const $ = id => document.getElementById(id);
   const hasApi = () => !!(window.pywebview && window.pywebview.api);
+
+  // ---- Theme system ----
+  const THEMES = ['violet','nebula','aurora','moss','tide'];
+  function applyTheme(t){
+    if(!THEMES.includes(t)) t = 'nebula';
+    document.body.dataset.theme = t;
+    $('themeSelect').value = t;
+    try{ localStorage.setItem('sideload-theme', t); }catch(e){}
+  }
+  // Apply instantly from localStorage; engine value reconciles on ready.
+  try{ applyTheme(localStorage.getItem('sideload-theme') || 'nebula'); }catch(e){}
+  $('themeSelect').addEventListener('change', e => {
+    applyTheme(e.target.value);
+    if(hasApi()) window.pywebview.api.set_theme(e.target.value);
+  });
 
   // ---- Screen switching ----
   const navItems = document.querySelectorAll('.nav-item');
@@ -274,6 +410,23 @@
   });
   $('cancelReview').addEventListener('click', () => { hideReview(); showForm(); });
 
+  // ---- Global Ctrl+V on the Convert screen ----
+  document.addEventListener('keydown', async e => {
+    if(!(e.ctrlKey && (e.key === 'v' || e.key === 'V'))) return;
+    if(!$('screen-convert').classList.contains('active')) return;
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // normal paste
+    if(!hasApi()) return;
+    const text = await window.pywebview.api.get_clipboard();
+    if(text && /^https?:\/\//i.test(text.trim())){
+      $('urlInput').value = text.trim();
+      $('convertBtn').click();   // paste-and-go
+    } else if(text){
+      $('urlInput').value = text.trim();
+      $('urlInput').focus();
+    }
+  });
+
   // ---- Convert button ----
   $('convertBtn').addEventListener('click', async () => {
     const url = $('urlInput').value.trim();
@@ -308,30 +461,57 @@
     showReview();
   });
 
-  // ---- Save (after review) ----
-  $('saveBtn').addEventListener('click', () => {
+  // ---- Add to queue (after review) ----
+  $('saveBtn').addEventListener('click', async () => {
     const url = $('urlInput').value.trim();
-    $('saveBtn').disabled = true;
-    setStatus('Starting…');
-    window.pywebview.api.convert_single(url, $('rTitle').value.trim(), $('rArtist').value.trim(), $('rAlbum').value.trim(), $('rGenre').value.trim(), $('rYear').value.trim(), $('rTrack').value.trim());
+    await window.pywebview.api.queue_single(
+      url, $('rTitle').value.trim(), $('rArtist').value.trim(), $('rAlbum').value.trim(),
+      $('rGenre').value.trim(), $('rYear').value.trim(), $('rTrack').value.trim()
+    );
+    hideReview(); showForm();
+    $('urlInput').value = '';
+    setStatus('Added to queue.','ok');
+    setTimeout(clearStatus, 2500);
+    $('urlInput').focus();
   });
 
-  // ---- Callbacks invoked from Python ----
+  // ---- Queue rendering ----
+  let doneCount = 0;
+  window.onQueueUpdate = items => {
+    const card = $('queueCard'), list = $('queueList');
+    if(!items || !items.length){ card.style.display = 'none'; doneCount = 0; return; }
+    card.style.display = '';
+    list.innerHTML = items.map(i => `
+      <div class="qitem ${esc(i.status)}">
+        <div class="qmeta">
+          <div class="qt">${esc(i.title||'Untitled')}${i.artist ? ' \u2014 ' + esc(i.artist) : ''}</div>
+          <div class="qbar"><i style="width:${i.status==='done'?100:(i.progress||0)}%"></i></div>
+        </div>
+        <div class="qs">${esc(i.label||i.status)}</div>
+      </div>`).join('');
+    const done = items.filter(i => i.status === 'done').length;
+    if(done !== doneCount){ refreshLibrary(); }
+    doneCount = done;
+  };
+  $('clearQueueBtn').addEventListener('click', async () => {
+    if(hasApi()) await window.pywebview.api.clear_finished();
+  });
+
+  // ---- Callbacks invoked from Python (playlist + fuzzy dupes) ----
   window.onProgress = msg => setStatus(msg);
-  window.onDone = msg => { setStatus(msg + ' \u2713','ok'); $('saveBtn').disabled=false; hideReview(); showForm(); $('urlInput').value=''; refreshLibrary(); };
-  window.onError = msg => { setStatus('Error: '+msg,'err'); $('saveBtn').disabled=false; showForm(); };
-  window.onCancelled = msg => { setStatus(msg,'warn'); $('saveBtn').disabled=false; hideReview(); showForm(); };
+  window.onDone = msg => { setStatus(msg + ' \u2713','ok'); hideReview(); showForm(); $('urlInput').value=''; refreshLibrary(); };
+  window.onError = msg => { setStatus('Error: '+msg,'err'); showForm(); };
+  window.onCancelled = msg => { setStatus(msg,'warn'); hideReview(); showForm(); };
   window.onFuzzyDuplicate = d => {
-    $('saveBtn').disabled=false;
     const keep = confirm(`Possible duplicate (${d.score}% match):\n${d.artist} \u2014 ${d.title}\n\nKeep this one anyway?`);
-    if(!keep){ showForm(); }
     window.pywebview.api.resolve_fuzzy(keep);
-    setStatus(keep ? 'Saving…' : 'Discarding…');
   };
 
   // ---- Library ----
-  function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return isNaN(d)?'':d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+  let libCache = [];
+  function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return isNaN(d)?'':d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
   function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
   async function refreshLibrary(){
     const list = $('songList');
     const sub = document.querySelector('#screen-library .sub');
@@ -340,8 +520,24 @@
       sub.textContent = "Everything you've converted.";
       return;
     }
-    const lib = await window.pywebview.api.get_library();
-    if(!lib || !lib.length){
+    libCache = await window.pywebview.api.get_library() || [];
+    renderLibrary();
+  }
+
+  function sortedLib(){
+    const v = $('sortSelect').value;
+    const lib = libCache.slice();  // get_library() returns newest first
+    if(v === 'oldest') lib.reverse();
+    if(v === 'title')  lib.sort((a,b)=>(a.title||'').localeCompare(b.title||'', undefined, {sensitivity:'base'}));
+    if(v === 'artist') lib.sort((a,b)=>(a.artist||'').localeCompare(b.artist||'', undefined, {sensitivity:'base'}));
+    return lib;
+  }
+
+  function renderLibrary(){
+    const list = $('songList');
+    const sub = document.querySelector('#screen-library .sub');
+    const lib = sortedLib();
+    if(!lib.length){
       list.innerHTML = '<div class="empty">No songs yet. Convert something to get started.</div>';
       sub.textContent = "Everything you've converted.";
       return;
@@ -365,25 +561,14 @@
         art.textContent = '';
       }
     });
+    applySearchFilter();
     list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', async e => {
       e.stopPropagation();
       if(!hasApi()) return;
       const filePath = btn.dataset.path || btn.dataset.file;
       const tags = await window.pywebview.api.load_for_edit(filePath);
       if(!tags){ setLibStatus('File not found.', 'err'); return; }
-      editFile = tags.file;
-      newArtPath = null;
-      $('eArtist').value = tags.artist || '';
-      $('eTitle').value  = tags.title  || '';
-      $('eAlbum').value  = tags.album  || '';
-      $('eGenre').value  = tags.genre  || '';
-      $('eYear').value   = tags.year   || '';
-      $('eTrack').value  = tags.tracknumber || '';
-      $('editArt').style.backgroundImage = tags.art_data_url ? `url('${tags.art_data_url}')` : 'none';
-      $('editFileName').textContent = tags.file.split(/[\\/]/).pop();
-      $('editBox').classList.remove('saved');
-      $('editBox').classList.add('show');
-      $('pickBtn').style.display = 'none';
+      fillEditForm(tags);
       setEditStatus('', '');
       document.querySelector('[data-screen="import"]').click();
     }));
@@ -404,6 +589,8 @@
     }));
   }
 
+  $('sortSelect').addEventListener('change', renderLibrary);
+
   function setLibStatus(msg, kind){
     const el=$('libStatus'); el.textContent=msg; el.className='status show'+(kind?' '+kind:'');
     if(msg) setTimeout(()=>{ el.className='status'; }, 4000);
@@ -421,33 +608,37 @@
     if(p) $('settingOutputDir').textContent = p;
   });
 
-  $('searchInput').addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
+  function applySearchFilter(){
+    const q = $('searchInput').value.toLowerCase();
     document.querySelectorAll('#songList .song').forEach(row => {
       row.style.display = row.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
     });
-  });
+  }
+  $('searchInput').addEventListener('input', applySearchFilter);
 
   // ---- Engine status ----
-  function markEngine(){
+  async function markEngine(){
     const c = hasApi();
     $('engineDot').classList.toggle('live', c);
     $('engineLabel').textContent = c ? 'Engine ready' : 'Browser preview';
-    if(c){ refreshLibrary(); refreshSettings(); }
+    if(c){
+      refreshLibrary(); refreshSettings();
+      try{
+        const t = await window.pywebview.api.get_theme();
+        if(t) applyTheme(t);
+      }catch(e){}
+    }
   }
   window.addEventListener('pywebviewready', markEngine);
   setTimeout(markEngine, 350);
 
-// ---- Import & edit screen ----
+  // ---- Import & edit screen ----
   let editFile = null;       // path of the MP3 being edited
   let newArtPath = null;     // chosen replacement image, if any
 
   function setEditStatus(msg, kind){ const el=$('editStatus'); el.textContent=msg; el.className='status show'+(kind?' '+kind:''); }
 
-  $('pickBtn').addEventListener('click', async () => {
-    if(!hasApi()){ alert('Launch via app.py to pick files.'); return; }
-    const tags = await window.pywebview.api.pick_mp3();
-    if(!tags) return;                 // user cancelled
+  function fillEditForm(tags){
     editFile = tags.file;
     newArtPath = null;
     $('eArtist').value = tags.artist || '';
@@ -461,11 +652,60 @@
     $('editBox').classList.remove('saved');
     $('editBox').classList.add('show');
     $('pickBtn').style.display = 'none';
-    setEditStatus('', '');
-    // Also add it to the library if it's new
-    const imp = await window.pywebview.api.import_song(editFile);
-    if(imp.ok){ setEditStatus('Added to library. Edit and save if you like.','ok'); }
+    $('dropHint').style.display = 'none';
+  }
+
+  async function importAndReport(path){
+    const imp = await window.pywebview.api.import_song(path);
+    if(imp.ok){ setEditStatus('Added to library. Edit and save if you like.','ok'); refreshLibrary(); }
     else if(imp.reason === 'already in library'){ setEditStatus('Already in your library \u2014 editing it.', ''); }
+  }
+
+  $('pickBtn').addEventListener('click', async () => {
+    if(!hasApi()){ alert('Launch via app.py to pick files.'); return; }
+    const tags = await window.pywebview.api.pick_mp3();
+    if(!tags) return;                 // user cancelled
+    fillEditForm(tags);
+    setEditStatus('', '');
+    await importAndReport(editFile);
+  });
+
+  // ---- Drag & drop MP3 import ----
+  const importScreen = $('screen-import');
+  let dragDepth = 0;
+  importScreen.addEventListener('dragenter', e => {
+    e.preventDefault(); e.stopPropagation();
+    if(++dragDepth === 1) $('dropHint').classList.add('on');
+  });
+  importScreen.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+  importScreen.addEventListener('dragleave', e => {
+    e.preventDefault(); e.stopPropagation();
+    if(--dragDepth === 0) $('dropHint').classList.remove('on');
+  });
+  importScreen.addEventListener('drop', async e => {
+    e.preventDefault(); e.stopPropagation();
+    dragDepth = 0; $('dropHint').classList.remove('on');
+    if(!hasApi()) return;
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(!f) return;
+    if(!/\.mp3$/i.test(f.name)){ setEditStatus('Only MP3 files can be imported.','warn'); return; }
+    let path = f.pywebviewFullPath || f.path || null;
+    if(!path){
+      // pywebviewFullPath not injected — try searching by filename first
+      path = await window.pywebview.api.find_mp3_by_name(f.name);
+    }
+    if(!path){
+      // Last resort: open native picker
+      setEditStatus('Drop detected — select the file in the dialog.', 'warn');
+      const tags = await window.pywebview.api.pick_mp3();
+      if(tags){ fillEditForm(tags); setEditStatus('',''); await importAndReport(tags.file); }
+      return;
+    }
+    const tags = await window.pywebview.api.load_for_edit(path);
+    if(!tags){ setEditStatus('Could not read that file.','err'); return; }
+    fillEditForm(tags);
+    setEditStatus('', '');
+    await importAndReport(path);
   });
 
   $('artBtn').addEventListener('click', async () => {
@@ -485,6 +725,7 @@
   $('cancelEditBtn').addEventListener('click', () => {
     $('editBox').classList.remove('show', 'saved');
     $('pickBtn').style.display = '';
+    $('dropHint').style.display = '';
     editFile=null; newArtPath=null;
   });
 
@@ -507,10 +748,10 @@
       setEditStatus('Saved \u2713','ok');
       $('editBox').classList.add('saved');
       $('pickBtn').style.display = '';
+      $('dropHint').style.display = '';
     }
     else { setEditStatus('Error: '+(r.error||'unknown'),'err'); }
   });
-
 
 </script>
 </body>

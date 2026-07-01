@@ -41,6 +41,16 @@ def set_output_dir(new_path: str):
     cfg["output_dir"] = str(OUTPUT_DIR)
     save_config(cfg)
 
+def get_setting(key, default=None):
+    """Read a single value out of config.json."""
+    return load_config().get(key, default)
+
+def set_setting(key, value):
+    """Write a single value into config.json."""
+    cfg = load_config()
+    cfg[key] = value
+    save_config(cfg)
+
 LIBRARY_PATH = Path(__file__).parent / "library.json"
 
 def send_to_apple_music(mp3_path):
@@ -166,7 +176,7 @@ def find_duplicate(url: str, title: str, artist: str, threshold: float = 0.85):
     return None
 
 
-def download_audio(url: str) -> Path:
+def download_audio(url: str, progress_hook=None) -> Path:
     """Download a single YouTube URL and convert it to MP3.
     Returns the path to the finished MP3 file."""
 
@@ -187,6 +197,9 @@ def download_audio(url: str) -> Path:
         "no_warnings": False,
     }
 
+    if progress_hook:
+        ydl_opts["progress_hooks"] = [progress_hook]
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         base = ydl.prepare_filename(info)
@@ -196,7 +209,7 @@ def download_audio(url: str) -> Path:
     print(f"\n✅ Done: {mp3_path.name}")
     return mp3_path, thumbnail_url, info
 
-def download_playlist(url: str, max_items: int = None):
+def download_playlist(url: str, max_items: int = None, progress=None):
     """Download every video in a playlist as MP3s.
     Processes each one through the full tag + cover art pipeline.
     Set max_items to cap how many to grab (None = all)."""
@@ -236,6 +249,12 @@ def download_playlist(url: str, max_items: int = None):
             video_url = f"https://www.youtube.com/watch?v={video_url}"
 
         print(f"\n[{i}/{len(entries)}] ───────────────────────────")
+
+        if progress:
+            try:
+                progress(i, len(entries), entry.get("title") or "")
+            except Exception:
+                pass
 
         # URL dupe check BEFORE downloading
         existing = find_duplicate(video_url, "", "")

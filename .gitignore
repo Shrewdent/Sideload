@@ -8,6 +8,7 @@ venv/
 
 # App data (personal, not source code)
 library.json
+config.json
 output/
 
 # OS
